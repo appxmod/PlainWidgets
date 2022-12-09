@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion  ver_compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion ver_minsdk
+        targetSdkVersion ver_aimsdk
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    if(use_compat_official=='1'){
+        api (libs_compat)
+    }else{
+        implementation  libs_compat
+    }
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api libs_mat
+    api libs_pref
+
+    api libs_recycler
+    api (libs_docfile)
+    api (libs_guest)
+    //compileOnly "com.google.auto.service:auto-service:1.0-rc6"
+    //compileOnly "com.squareup:javapoet:1.11.1"
+
+    //compileOnly project(path: ':annotation:compiler')
+}
+
+apply from: "${rootProject.projectDir}/dependency.gradle"
+
+
+apply plugin: 'maven-publish'
+afterEvaluate {
+    publishing {
+        publications {
+            mavenAll(MavenPublication) {
+                from components.release
+                groupId "org.appxmod.android"
+                artifactId "ColorPicker"
+                version "1.0.0"
+            }
+        }
+    }
+}
+build.finalizedBy publishToMavenLocal

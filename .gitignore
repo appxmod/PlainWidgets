@@ -1,0 +1,10 @@
+.iml
+bin
+gen
+api/
+api_legacy/
+build/
+AxtAppCompat.iml
+local.properties
+.gradle
+.idea

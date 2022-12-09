@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion ver_compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion ver_minsdk
+        targetSdkVersion ver_aimsdk
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation (libs_anno)
+    api libs_viewpager
+    //api (libs_recycler)
+    if (use_recycler_official == '1') {
+        api(libs_recycler) {
+            exclude module:"core"
+        }
+    } else {
+        api libs_recycler
+    }
+}
+
+// New version can be uploaded with './gradlew clean :library:uploadArchives'
+//apply from: 'gradle-mvn-push.gradle'
+
+// Count methods:
+// dx --dex --output=temp.dex classes.jar
+// hexdump -s 88 -n 4 -e '1/4 "%d\n"' temp.dex
+// Where dx is placed in SDK folder, e.g. ~/Library/Android/sdk/build-tools/26.0.3/
+
+
+apply plugin: 'maven-publish'
+afterEvaluate {
+    publishing {
+        publications {
+            mavenAll(MavenPublication) {
+                from components.release
+                groupId "org.appxmod.android"
+                artifactId "GuestureView"
+                version "1.0.0"
+            }
+        }
+    }
+}
+build.finalizedBy publishToMavenLocal

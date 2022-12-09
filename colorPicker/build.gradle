@@ -1,0 +1,80 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion ver_compileSdkVersion
+
+    sourceSets {
+      main {
+        manifest.srcFile 'AndroidManifest_as.xml'
+        java.srcDirs = ['src']
+        resources.srcDirs = ['src']
+        aidl.srcDirs = ['src']
+        renderscript.srcDirs = ['src']
+        res.srcDirs = ['res']
+        assets.srcDirs = ['assets']
+      }
+      androidTest.setRoot('tests')
+    }
+
+    defaultConfig {
+        minSdkVersion ver_minsdk
+        targetSdkVersion ver_aimsdk
+        vectorDrawables.generatedDensities = ['hdpi']
+    }
+
+  //signingConfigs {
+  //  release {
+  //    keyAlias 'xxx'
+  //    keyPassword 'xxx'
+  //    storeFile file('/Users/xxx/work/keystore/xxx.key')
+  //    storePassword 'xxx'
+  //  }
+  //}
+
+  lintOptions {
+    abortOnError false
+  }
+
+  buildTypes {
+    release {
+        minifyEnabled false
+        //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+        //signingConfig signingConfigs.release
+    }
+  }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    api (libs_compat)
+    api libs_pref
+    api (libs_anno)
+    api (project(path: ':filepicker')){
+        exclude module:"core"
+    }
+}
+
+
+apply plugin: 'maven-publish'
+afterEvaluate {
+    publishing {
+        publications {
+            mavenAll(MavenPublication) {
+                from components.release
+                groupId "org.appxmod.android"
+                artifactId "FilePicker"
+                version "1.0.0"
+            }
+        }
+    }
+}
+build.finalizedBy publishToMavenLocal
