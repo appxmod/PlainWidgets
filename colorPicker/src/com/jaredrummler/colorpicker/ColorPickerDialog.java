@@ -132,6 +132,7 @@ public class ColorPickerDialog extends DialogFragment implements
 	private int collapsePosition;
 	private boolean isDirty;
 	private int oldOrientation;
+	public DialogInterface.OnShowListener mOnShowListener;
 	
 	public static ColorPickerDialog newInstance(Context context, int initialColor) {
 		ColorPickerDialog dialog = new ColorPickerDialog();
@@ -266,6 +267,9 @@ public class ColorPickerDialog extends DialogFragment implements
 				.setView(rootView)
 				.setAutoBG(false)
 				.create();
+		if (mOnShowListener!=null) {
+			dialog.setOnShowListener(mOnShowListener);
+		}
 		
 		Window win = dialog.getWindow();
 		win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

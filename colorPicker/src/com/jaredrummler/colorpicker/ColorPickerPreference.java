@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.CMN;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A preference type that allows a user to choose a time
@@ -94,15 +95,11 @@ public class ColorPickerPreference
 	public void onBindViewHolder(PreferenceViewHolder holder) {
 		super.onBindViewHolder(holder);
 		mView = holder.itemView;
-		setPreviewColor();
-	}
-
-    private void setPreviewColor() {
-        if (mView == null) return;
-        if(mView.getTag()==null){
+		//setPreviewColor();
+		LinearLayout widgetFrameView = mView.findViewById(android.R.id.widget_frame);
+		if (widgetFrameView == null) return;
+        if(widgetFrameView.getTag()==null){
 			ImageView iView = new ImageView(getContext());
-			LinearLayout widgetFrameView = mView.findViewById(android.R.id.widget_frame);
-			if (widgetFrameView == null) return;
 			widgetFrameView.setVisibility(View.VISIBLE);
 			widgetFrameView.setPadding(
 					widgetFrameView.getPaddingLeft(),
@@ -119,9 +116,9 @@ public class ColorPickerPreference
 			widgetFrameView.setMinimumWidth(0);
 			iView.setBackgroundDrawable(new AlphaPatternDrawable((int) (5 * mDensity)));
 			iView.setImageBitmap(getPreviewBitmap(iView.getDrawable()));
-			mView.setTag(iView);
+			widgetFrameView.setTag(iView);
 		} else {
-			ImageView iView = (ImageView) mView.getTag();
+			ImageView iView = (ImageView) widgetFrameView.getTag();
 			iView.setImageBitmap(getPreviewBitmap(iView.getDrawable()));
 		}
     }
