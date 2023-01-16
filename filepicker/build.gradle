@@ -36,7 +36,7 @@ dependencies {
 
     api libs_recycler
     api (libs_docfile)
-    api (libs_guest)
+    api project(':GestureView')
     //compileOnly "com.google.auto.service:auto-service:1.0-rc6"
     //compileOnly "com.squareup:javapoet:1.11.1"
 
