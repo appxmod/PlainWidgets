@@ -19,9 +19,7 @@ package com.knziha.filepicker.view;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
@@ -31,7 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,15 +43,15 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.ObjectKey;
 import com.knziha.filepicker.R;
-import com.knziha.filepicker.model.NotifyItemChecked;
 import com.knziha.filepicker.model.AudioCover;
 import com.knziha.filepicker.model.DialogConfigs;
 import com.knziha.filepicker.model.DialogProperties;
-import com.knziha.filepicker.settings.FilePickerOptions;
 import com.knziha.filepicker.model.MarkedItemList;
 import com.knziha.filepicker.model.MyRequestListener;
+import com.knziha.filepicker.model.NotifyItemChecked;
 import com.knziha.filepicker.model.PatternHolder;
 import com.knziha.filepicker.model.VideoCover;
+import com.knziha.filepicker.settings.FilePickerOptions;
 import com.knziha.filepicker.utils.ExtensionHelper;
 import com.knziha.filepicker.widget.MaterialCheckbox;
 import com.knziha.filepicker.widget.OnCheckedChangeListener;
@@ -68,7 +65,7 @@ import java.util.regex.Matcher;
 
 /** Used to populate ListView or GridView with file info. */
 public class FilePickerAdapter extends ArrayAdapter<FileListItem>{
-    private final FilePickerOptions opt;
+	public /*final*/ FilePickerOptions opt;
 	public int colorAccent;
 	public int colorPrimary;
 	private ArrayList<FileListItem> listItem;
@@ -196,11 +193,16 @@ public class FilePickerAdapter extends ArrayAdapter<FileListItem>{
 		if(!item.isDirectory())
 			if((suffix_idx=item.filename.lastIndexOf("."))!=-1){file_suffix=item.filename.substring(suffix_idx).toLowerCase();}
 
-        if(opt.getEnableTumbnails() && file_suffix!=null && (ExtensionHelper.FOOTAGE.contains(file_suffix)||ExtensionHelper.PHOTO.contains(file_suffix) || (b2=ExtensionHelper.SOUNDS.contains(file_suffix)))) {
+        if(opt.getOpt(FilePickerOptions.FilePickerOption.bShowThumbnails, true, 0)==1
+				&& file_suffix!=null
+				&& (ExtensionHelper.FOOTAGE.contains(file_suffix)||ExtensionHelper.PHOTO.contains(file_suffix) || (b2=ExtensionHelper.SOUNDS.contains(file_suffix)))) {
 			DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
-			int targetDimension = (int) (opt.getListIconSize() * 1.f / 16 * Math.min(dm.widthPixels, dm.heightPixels));
+			int targetDimension = (int) (
+					opt.getOpt(FilePickerOptions.FilePickerOption.nIconSize, true, 0)
+					* 1.f / 16 * Math.min(dm.widthPixels, dm.heightPixels));
 			decorate_by_dimensions(type_icon, targetDimension,
-					opt.getAutoThumbsHeight() ? LayoutParams.WRAP_CONTENT : targetDimension);
+					opt.getOpt(FilePickerOptions.FilePickerOption.bAutoThumbsHeight, true, 0)==1
+							? LayoutParams.WRAP_CONTENT : targetDimension);
 			//decorate_by_dimensions(type_icon, targetDimension, LayoutParams.MATCH_PARENT);
 			Priority priority = Priority.HIGH;
 			RequestOptions options = new RequestOptions()
@@ -216,10 +218,12 @@ public class FilePickerAdapter extends ArrayAdapter<FileListItem>{
 			type_icon.setTag(R.id.home, false);
 			RequestManager IncanOpen = Glide.with(getContext().getApplicationContext());
 			(b2?IncanOpen.load(new AudioCover(item.location)):
-					IncanOpen.load(FilePickerOptions.getFFmpegThumbsGeneration()?new VideoCover(item.location):item.location))
+					IncanOpen.load(
+							opt.getOpt(FilePickerOptions.FilePickerOption.bFFMRThumbnails, true, 0)==1
+							?new VideoCover(item.location):item.location))
 					.apply(options)
 					.format(DecodeFormat.PREFER_RGB_565)
-					.listener(myreqL2.setCrop(opt.getCropTumbnails()))
+					.listener(myreqL2.setCrop(opt.getOpt(FilePickerOptions.FilePickerOption.bCropThumbnails, true, 0)==1))
 					.into(holder.type_icon)
 			;
         }

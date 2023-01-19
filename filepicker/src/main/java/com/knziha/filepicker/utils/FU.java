@@ -1198,7 +1198,7 @@ public class FU {
 	}
 
 	public static boolean hasRootPermission() {
-		if(!FilePickerOptions.getRoot())
+		if(!FilePickerOptions.getRoot)
 			return false;
 	   Process process = null;
 	   DataOutputStream os = null;

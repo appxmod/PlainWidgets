@@ -16,6 +16,8 @@
 
 package com.knziha.filepicker.model;
 
+import com.knziha.filepicker.settings.FilePickerOptions;
+
 import java.io.File;
 import java.util.HashSet;
 
@@ -92,4 +94,6 @@ public class DialogProperties {
         offset = new File(DialogConfigs.DEFAULT_DIR);
         extensions = null;
     }
+	
+	public FilePickerOptions opt = FilePickerOptions.opt;
 }

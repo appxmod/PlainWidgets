@@ -113,8 +113,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import mp4meta.utils.CMN;
-
 public class FilePickerDialog extends AlertDialog implements
              AdapterView.OnItemClickListener,
              WindowChangeHandler,
@@ -141,7 +139,6 @@ public class FilePickerDialog extends AlertDialog implements
     private String negativeBtnNameStr = null;
     public boolean bDontAttach;
 
-    public long FirstFlagStamp;
     private GridViewmy listView;
     public TextView dir_path;
     public TextView title;
@@ -153,7 +150,8 @@ public class FilePickerDialog extends AlertDialog implements
     public int BKMKOff;
 
     FilePickerOptions opt;
-    private RecyclerView.Adapter mBMAdapter;
+	public boolean optMayChanged;
+	private RecyclerView.Adapter mBMAdapter;
     private RecyclerViewmy bmlv;
 
     boolean bIsDeletingFavor;
@@ -219,13 +217,12 @@ public class FilePickerDialog extends AlertDialog implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	//CMNF.Log("oncreate");
-        opt = new FilePickerOptions(getContext());
-        FileListItem.comparation_method=opt.getSortMode();
+		setOptions(properties.opt);
         super.onCreate(savedInstanceState);
         Window win = getWindow();
         if(win==null || bDontAttach) {
         	root = getLayoutInflater().inflate(R.layout.dialog_main,null);
-        }else {
+        } else {
 			//win.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,  WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 			//if(FU.bKindButComplexSdcardAvailable)
         	    win.setBackgroundDrawableResource(properties.isDark?R.drawable.popup_shadow_d:R.drawable.popup_shadow_s);
@@ -280,7 +277,7 @@ public class FilePickerDialog extends AlertDialog implements
 	        		success=false;
 	        	}else {
 	        		if(compareByteArrayIsPara(headerbuffer, targetSize-2, tailing)) {
-	        			opt.FirstFlag = toLong(headerbuffer,0);
+	        			//opt.FirstFlag = toLong(headerbuffer,0);
 	        			BKMKOff = toInt(headerbuffer,8);
 	        			success=true;
 	        		}else
@@ -304,7 +301,7 @@ public class FilePickerDialog extends AlertDialog implements
 				e.printStackTrace();
 			}
         }
-        FirstFlagStamp = opt.FirstFlag;
+        //FirstFlagStamp = opt.FirstFlag;
         if(favorList.size()==0) {  // true||
         	List<String> toAdd = Arrays.asList(getContext().getResources().getStringArray(R.array.internal_favor_dirs));
             favorList.addAll(0,toAdd);
@@ -494,17 +491,25 @@ public class FilePickerDialog extends AlertDialog implements
 				isDirty=true;
 			bmlv.setTag(false);
 		});
-		if(opt.getBkmkShown())
+		if(opt.getOpt(FilePickerOptions.FilePickerOption.bShowBookmarks, true, 0)==1)
 			bmlv.setVisibility(View.VISIBLE);
 		else
 			bmlv.setVisibility(View.GONE);
-        if(opt.getBottombarShown()) {
+        if(opt.getOpt(FilePickerOptions.FilePickerOption.bShowBottombar, true, 0)==1) {
             bottombar2.setVisibility(View.VISIBLE);
-        }else
+        } else
             bottombar2.setVisibility(View.GONE);
         decorate_bottom_bar();
 	}
-
+	
+	public void setOptions(FilePickerOptions opt) {
+		this.opt = opt;
+		if (mFileListAdapter!=null) {
+			mFileListAdapter.opt = opt;
+		}
+		FileListItem.comparation_method = opt.getOpt(FilePickerOptions.FilePickerOption.nSortMode, true, 0);
+		FilePickerOptions.getRoot = opt.getOpt(FilePickerOptions.FilePickerOption.bRoot, true, 0)==1;
+	}
 
 	protected void decorate_bottom_bar(){
         int padding8 = (int) (getContext().getResources().getDisplayMetrics().density*8);
@@ -574,7 +579,8 @@ public class FilePickerDialog extends AlertDialog implements
             listView.setOnItemClickListener(this);
         }
 
-        if(opt.getSlideShowMode()) EnterSlideShowMode(100);
+        if(opt.getOpt(FilePickerOptions.FilePickerOption.bSlideshowMode, true, 0)==1)
+			EnterSlideShowMode(100);
 
 		Window win = getWindow();
 		if(win==null) return;
@@ -609,7 +615,7 @@ public class FilePickerDialog extends AlertDialog implements
         //here
         MarkedItemList.clearSelectionList();
         internalList.clear();
-        if(isDirty || FirstFlagStamp!=opt.FirstFlag)
+        if(isDirty)
             dumpSettings();
         CMNF.AssetMap=null;
         filter=null;
@@ -633,10 +639,11 @@ public class FilePickerDialog extends AlertDialog implements
                 for(int i=0;i<headerbuffer.length;i++) {
                     headerbuffer[i]=0;
                 }
-                headerbuffer[7] = (byte) (opt.FirstFlag & 0xff);
-                headerbuffer[6] = (byte) (opt.FirstFlag >> 8 & 0xff);
-                headerbuffer[5] = (byte) (opt.FirstFlag >> 16 & 0xff);
-                headerbuffer[4] = (byte) (opt.FirstFlag >> 24 & 0xff);
+				long opt_FirstFlag = 0;
+				headerbuffer[7] = (byte) (opt_FirstFlag & 0xff);
+                headerbuffer[6] = (byte) (opt_FirstFlag >> 8 & 0xff);
+                headerbuffer[5] = (byte) (opt_FirstFlag >> 16 & 0xff);
+                headerbuffer[4] = (byte) (opt_FirstFlag >> 24 & 0xff);
                 BKMKOff =  layoutManager.findFirstCompletelyVisibleItemPosition();
                 if(BKMKOff<0)
                     BKMKOff=layoutManager.findFirstVisibleItemPosition();
@@ -655,7 +662,6 @@ public class FilePickerDialog extends AlertDialog implements
                 }
                 output.close();
             }
-            FirstFlagStamp=opt.FirstFlag;
         } catch (Exception ignored) {}
     }
 
@@ -877,7 +883,7 @@ public class FilePickerDialog extends AlertDialog implements
                     fmark.performClick();
                     profaneSelction();
                 }else{
-                    if(!opt.getSlideShowMode()){
+                    if(opt.getOpt(FilePickerOptions.FilePickerOption.bSlideshowMode, true, 0)==0){
 						if(!properties.locked) {
 							snack_lock();
 							return;
@@ -1076,15 +1082,9 @@ public class FilePickerDialog extends AlertDialog implements
 
         }
         else if(id  == R.id.toolbar_action1) {
-            boolean val;
-            if(bottombar2.getVisibility()!=View.VISIBLE) {
-                bottombar2.setVisibility(View.VISIBLE);
-                val=true;
-            }else {
-                bottombar2.setVisibility(View.GONE);
-                val=false;
-            }
-            opt.setBottombarShown(val);
+			VU.setVisible(bottombar2
+				, opt.getOpt(FilePickerOptions.FilePickerOption.bShowBottombar, false
+							, (opt.getOpt(FilePickerOptions.FilePickerOption.bShowBottombar, true, 0)+1)%2)==1);
             return true;
         }
         else if(id==R.id.browser_widget12){
@@ -1108,7 +1108,7 @@ public class FilePickerDialog extends AlertDialog implements
 		int id1 = compoundButton.getId();
 		if(id1 ==R.id.enable_list){
 			if(true)if(b==false){Toast.makeText(getContext(),"暂不支持网格显示",Toast.LENGTH_SHORT).show();ckList.setChecked(true);return;}
-			opt.setEnableList(b);
+			b = opt.getOpt(FilePickerOptions.FilePickerOption.bListMode, true, b?1:0)==1;
 			np1.setOnValueChangedListener(null);
 			TextView vm1 = ComfyView.findViewById(R.id.viewmode1);
 			TextView vm2 = ComfyView.findViewById(R.id.viewmode2);
@@ -1121,11 +1121,11 @@ public class FilePickerDialog extends AlertDialog implements
 				((TextView)ComfyView.findViewById(R.id.numberpickerh)).setText("列表图屏占比(__/16): ");
 				np1.setMinValue(1);
 				np1.setMaxValue(16);
-				np1.setValue(opt.getListIconSize());
-				np1.setOnValueChangedListener((numberPicker, i, i1) -> {
-					opt.setListIconSize(i1);
+				np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.nIconSize, true, 0));
+				np1.setOnValueChangedListener((numberPicker, i, val) -> {
+					np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.nIconSize, false, val));
 				});
-			}else {
+			} else {
 				//ComfyView.findViewById(R.id.numberpickerp).setVisibility(View.VISIBLE);
 				vm1.setText(R.string._1column);
 				vm2.setText(R.string._2column);
@@ -1133,21 +1133,21 @@ public class FilePickerDialog extends AlertDialog implements
 				((TextView)ComfyView.findViewById(R.id.numberpickerh)).setText(R.string.custom_columns_number);
 				np1.setMinValue(1);
 				np1.setMaxValue(64);
-				np1.setValue(opt.getGridSize());
-				np1.setOnValueChangedListener((numberPicker, i, i1) -> {
-					opt.setGridSize(i1);
+				np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.nGridSize, true, 0));
+				np1.setOnValueChangedListener((numberPicker, i, val) -> {
+					np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.nGridSize, false, val));
 				});
 			}
 		}
 		else if(id1==R.id.enable_thumbs){
-			opt.setEnableTumbnails(b);
+			np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.bShowThumbnails, false, b?1:0));
 		}
 		else if(id1==R.id.crop_thumbs){
 			mFileListAdapter.myreqL2.setCrop(b);
-			opt.setCropTumbnails(b);
+			np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.bCropThumbnails, false, b?1:0));
 		}
 		else if(id1==R.id.auto_height){
-			opt.setAutoThumbsHeight(b);
+			np1.setValue(opt.getOpt(FilePickerOptions.FilePickerOption.bAutoThumbsHeight, false, b?1:0));
 		}
 	};
 
@@ -1393,7 +1393,7 @@ public class FilePickerDialog extends AlertDialog implements
             popup1.setDropDownGravity(Gravity.RIGHT);
             popup1.setHorizontalOffset((int) (  -3*dm.density));
             if (menu_clicker == null) {
-                menu_clicker= (parent, view, position, id12) -> {
+                menu_clicker = (parent, view, position, id12) -> {
                     int id_true = ((MenuAdapter) parent.getAdapter()).getId(position);
                     if(id_true==R.drawable.fp_lock){
 						if(menupopup!=null)menupopup.dismiss();
@@ -1425,7 +1425,10 @@ public class FilePickerDialog extends AlertDialog implements
                     }
                     else if(id_true==R.drawable.ic_viewpager_carousel){//切换幻灯片模式
                         if(menupopup!=null)menupopup.dismiss();
-                        if(opt.setSlideShowMode(!opt.getSlideShowMode())){
+                        //if(opt.setSlideShowMode(!opt.getSlideShowMode())){
+                        if(opt.getOpt(FilePickerOptions.FilePickerOption.bSlideshowMode, false
+								, (opt.getOpt(FilePickerOptions.FilePickerOption.bSlideshowMode, true, 0)+1)%2
+						)==1){
                             EnterSlideShowMode(0);
                         }else{
                             int ch = getContext().getResources().getColor(R.color.colorHeader);
@@ -1446,15 +1449,13 @@ public class FilePickerDialog extends AlertDialog implements
             //popup1.mDropDownList.setScrollbarFadingEnabled(false);
         }
         else if(id == R.id.toolbar_action1) {//folderCover
-        	boolean val = opt.getBkmkShown();
+			VU.setVisible(bmlv
+					, opt.getOpt(FilePickerOptions.FilePickerOption.bShowBookmarks, false
+							, (opt.getOpt(FilePickerOptions.FilePickerOption.bShowBookmarks, true, 0)+1)%2)==1);
             //sn(v);
-        	if(val) {
-        		bmlv.setVisibility(View.GONE);
-        	}else{
-        		adapt_bkmk_size();
-        		bmlv.setVisibility(View.VISIBLE);
-        	}
-            opt.setBkmkShown(!val);
+			if(VU.isVisible(bmlv)) {
+				adapt_bkmk_size();
+			}
         	dumpSettings();
     		isDirty=false;
         	v.setTag(false);
@@ -1656,7 +1657,7 @@ public class FilePickerDialog extends AlertDialog implements
           	final EditText etNew = dv.findViewById(R.id.edt_input);
           	final View btn_Done = dv.findViewById(R.id.done);
           	final ImageView btn_SwicthFolderCreation = dv.findViewById(R.id.toolbar_action1);
-        	if(opt.getCreatingFile())
+        	if(opt.getOpt(FilePickerOptions.FilePickerOption.bShowCreateFile, true, 0)==1)
 				etNew.setHint(R.string.fp_cf);
         	else
 				btn_SwicthFolderCreation.setColorFilter(Color.GRAY);
@@ -1664,7 +1665,8 @@ public class FilePickerDialog extends AlertDialog implements
         	dd.requestWindowFeature(Window.FEATURE_NO_TITLE);
         	dd.setContentView(dv);
         	btn_SwicthFolderCreation.setOnClickListener(v17 -> {
-				if(opt.setCreatingFile(!opt.getCreatingFile())) {
+				if(opt.getOpt(FilePickerOptions.FilePickerOption.bShowCreateFile, false
+						, (opt.getOpt(FilePickerOptions.FilePickerOption.bShowCreateFile, true, 0)+1)%2)==1) {
 					btn_SwicthFolderCreation.setColorFilter(null);//本色毕露
 					etNew.setHint(R.string.fp_cf);
 				}else {
@@ -1694,7 +1696,8 @@ public class FilePickerDialog extends AlertDialog implements
                 else Toast.makeText(getContext(), "未知错误1:"+ret, Toast.LENGTH_LONG).show();
                     return;
                 }
-                ret=FU.mkdir5(getContext(),new_Folder,opt.getCreatingFile());
+                ret=FU.mkdir5(getContext(),new_Folder
+						,opt.getOpt(FilePickerOptions.FilePickerOption.bShowCreateFile, true, 0)==1);
                 if(ret>=0) {
                     internalList.add(new FileListItem(new_Folder, true));
                     mFileListAdapter.notifyDataSetChanged();
@@ -1737,14 +1740,15 @@ public class FilePickerDialog extends AlertDialog implements
           	final View btn_Next = dv.findViewById(R.id.toxia);
           	final View btn_Last = dv.findViewById(R.id.toshn);
           	final ImageView btn_SwicthFolderCreation = dv.findViewById(R.id.toolbar_action1);
-        	if(!opt.getRegexSearch()) {
+        	if(opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, true, 0)==0) {
         		btn_SwicthFolderCreation.setColorFilter(Color.GRAY);
         	}else
     			etNew.setHint(R.string.regex);
 
         	if(ph.text!=null){
 				String phrase=ph.text;
-				if(!opt.getRegexSearch() && phrase.startsWith("^")) phrase=phrase.substring(1);
+				if(opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, true, 0)==0
+						&& phrase.startsWith("^")) phrase=phrase.substring(1);
 				etNew.setText(phrase);
 			}
         	
@@ -1752,7 +1756,8 @@ public class FilePickerDialog extends AlertDialog implements
         	dd.requestWindowFeature(Window.FEATURE_NO_TITLE);
         	dd.setContentView(dv);
 			btn_SwicthFolderCreation.setOnClickListener(v15 -> {
-				if(opt.setRegexSearch(!opt.getRegexSearch())) {
+				if(opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, false
+						, (opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, true, 0)+1)%2)==1) {
 					btn_SwicthFolderCreation.setColorFilter(null);//本色毕露
 					etNew.setHint(R.string.regex);
 				}else {
@@ -1767,14 +1772,14 @@ public class FilePickerDialog extends AlertDialog implements
 				}
 				String text = etNew.getText().toString();
 				boolean bNeedInvaildate=false;
-				if(!text.equals(ph.text) || opt.getRegexSearch()!=old_use_regex){
+				if(!text.equals(ph.text) || (opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, true, 0)==1)!=old_use_regex){
 					bNeedInvaildate=true;
 					ph.pattern=null;
-					if(opt.getRegexSearch()) try {
+					if(opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, true, 0)==1) try {
 						ph.pattern = Pattern.compile(text,Pattern.CASE_INSENSITIVE);
 					} catch (Exception e) { ph.pattern = Pattern.compile(etNew.getText().toString(),Pattern.LITERAL); }
 					ph.text =text;
-					old_use_regex=opt.getRegexSearch();
+					old_use_regex=opt.getOpt(FilePickerOptions.FilePickerOption.bRegexSch, true, 0)==1;
 				}
 				if(bNeedInvaildate)mFileListAdapter.notifyDataSetChanged();
 				int fvp = listView.getFirstVisiblePosition();
@@ -1844,13 +1849,13 @@ public class FilePickerDialog extends AlertDialog implements
 	}
 
 	private void show_views_dialog() {
-		long mFlagLocalStamp = opt.getFlag();
 		if(d!=null) return;
 		if(ComfyView==null){
 			ComfyView = (ViewGroup) getLayoutInflater().inflate(R.layout.dialog_change_sorting_l, null);
 			VU.setOnClickListenersOneDepth(ComfyView, new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
+					optMayChanged = true;
 					int mode = -1;
 					int id = view.getId();
 					if (id == R.id.viewmode1) {
@@ -1899,11 +1904,14 @@ public class FilePickerDialog extends AlertDialog implements
 			ckThumb.setSupportButtonTintList(colorStateList);
 			ckThumbCrop.setSupportButtonTintList(colorStateList);
 			ckThumbAutoHeight.setSupportButtonTintList(colorStateList);
-			np1 = ComfyView.findViewById(R.id.numberpicker); ckList.setChecked(!opt.getEnableList());
-			ckThumb.setChecked(opt.getEnableTumbnails());  ckThumbCrop.setChecked(opt.getCropTumbnails());
-			ckThumbAutoHeight.setChecked(opt.getAutoThumbsHeight());
+			np1 = ComfyView.findViewById(R.id.numberpicker);
+				ckList.setChecked(opt.getOpt(FilePickerOptions.FilePickerOption.bListMode, true, 0)==0);
+			ckThumb.setChecked(opt.getOpt(FilePickerOptions.FilePickerOption.bShowThumbnails, true, 0)==1);
+				ckThumbCrop.setChecked(opt.getOpt(FilePickerOptions.FilePickerOption.bCropThumbnails, true, 0)==1);
+			ckThumbAutoHeight.setChecked(opt.getOpt(FilePickerOptions.FilePickerOption.bAutoThumbsHeight, true, 0)==1);
 
-			ckList.setOnCheckedChangeListener(checkclicker); ckList.setChecked(opt.getEnableList());
+			ckList.setOnCheckedChangeListener(checkclicker);
+				ckList.setChecked(opt.getOpt(FilePickerOptions.FilePickerOption.bListMode, true, 0)==1);
 			ckThumb.setOnCheckedChangeListener(checkclicker);
 			ckThumbCrop.setOnCheckedChangeListener(checkclicker);
 			ckThumbAutoHeight.setOnCheckedChangeListener(checkclicker);
@@ -1911,7 +1919,7 @@ public class FilePickerDialog extends AlertDialog implements
 		androidx.appcompat.app.AlertDialog.Builder dialog_builder
 				= new  androidx.appcompat.app.AlertDialog.Builder(getContext());
 
-		if(opt.getSortMode()%2==0){
+		if(opt.getOpt(FilePickerOptions.FilePickerOption.nSortMode, true, 0)%2==0){
 			SortModeCommon(((ViewGroup)ComfyView.findViewById(R.id.viewmode4).getParent()).getChildAt(FileListItem.comparation_method/2),-1);
 		}else{
 			SortModeCommon(((ViewGroup)ComfyView.findViewById(R.id.viewmode5).getParent()).getChildAt((FileListItem.comparation_method-1)/2),-1);
@@ -1935,10 +1943,11 @@ public class FilePickerDialog extends AlertDialog implements
 		final CircleCheckBox ck = tv.getChildAt(tv.getChildCount()-1).findViewById(R.id.check1);
 		//ck.drawInnerForEmptyState = true;
 		ck.setBorderColor(ck.getCheckedColor());
-		ck.setChecked(opt.getPinSortDialog());
+		ck.setChecked(opt.getOpt(FilePickerOptions.FilePickerOption.bPinSortDialog, true, 0)==1);
 		ck.setOnClickListener(vv -> {
 			ck.toggle(false);
-			opt.setPinSortDialog(ck.isChecked());
+			opt.getOpt(FilePickerOptions.FilePickerOption.bPinSortDialog, false
+					, (opt.getOpt(FilePickerOptions.FilePickerOption.bPinSortDialog, true, 0)+1)%2);
 		});
 		TextView titlebar = ((TextView) ((ViewGroup) tv.getChildAt(0)).getChildAt(0));
 		titlebar.setGravity(Gravity.START);
@@ -1947,16 +1956,13 @@ public class FilePickerDialog extends AlertDialog implements
 		titlebar.setText(R.string.view);
 		titlebar.setTextColor(Color.BLACK);
 		dTmp.setOnDismissListener(comfy_dissmiss_l==null?(comfy_dissmiss_l=dialogInterface -> {
-			if(opt.getSortMode()!=FileListItem.comparation_method){
-				FileListItem.comparation_method=opt.getSortMode();
+			if(opt.getOpt(FilePickerOptions.FilePickerOption.nSortMode, true, 0)!=FileListItem.comparation_method){
+				FileListItem.comparation_method=opt.getOpt(FilePickerOptions.FilePickerOption.nSortMode, true, 0);
 				ChangeToDir(currLocation);
-			}else if(opt.getCropTumbnails(mFlagLocalStamp)!=opt.getCropTumbnails()
-					||opt.getEnableTumbnails(mFlagLocalStamp)!=opt.getEnableTumbnails()
-					||opt.getEnableList(mFlagLocalStamp)!=opt.getEnableList()
-					||opt.getListIconSize(mFlagLocalStamp)!=opt.getListIconSize()
-					||opt.getAutoThumbsHeight(mFlagLocalStamp)!=opt.getAutoThumbsHeight()
-			)
+			} else if(optMayChanged) {
 				mFileListAdapter.notifyDataSetChanged();
+			}
+			optMayChanged = false;
 			d=null;
 			if(ComfyView.getParent()!=null)
 				((ViewGroup)ComfyView.getParent()).removeView(ComfyView);
@@ -2004,8 +2010,8 @@ public class FilePickerDialog extends AlertDialog implements
             oldSelectedSortMode = v;
         }
         if(new_mode>=0) {
-            opt.setSortMode(new_mode);
-            if (!opt.getPinSortDialog()) {
+			opt.getOpt(FilePickerOptions.FilePickerOption.nSortMode, false, new_mode);
+            if (opt.getOpt(FilePickerOptions.FilePickerOption.bPinSortDialog, true, 0)==0) {
                 d.dismiss();
             }
         }

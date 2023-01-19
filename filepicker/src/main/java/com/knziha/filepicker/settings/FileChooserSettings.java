@@ -13,21 +13,27 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.knziha.filepicker.R;
 
 import java.io.File;
 
 import static com.knziha.filepicker.model.GlideCacheModule.DEFAULT_GLIDE_PATH;
 
-public class FileChooser extends SettingsFragmentBase implements Preference.OnPreferenceClickListener {
+public class FileChooserSettings extends SettingsFragmentBase implements Preference.OnPreferenceClickListener {
 	public final static int id=3;
+	final FilePickerOptions opt;
+	
+	public FileChooserSettings(FilePickerOptions opt) {
+		this.opt = opt;
+	}
 	
 	//初始化
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		init_switch_preference(this, "use_ffmpeg_for_thumbs", FilePickerOptions.getFFmpegThumbsGeneration(), null, null, null);
-		init_switch_preference(this, "auto_delete_thumbs", FilePickerOptions.getUseLruDiskCache(), null, null, null);
+		init_switch_preference(this, "use_ffmpeg_for_thumbs", opt.getOpt(FilePickerOptions.FilePickerOption.bFFMRThumbnails, true, 0)==1, null, null, null);
+		init_switch_preference(this, "auto_delete_thumbs", opt.getOpt(FilePickerOptions.FilePickerOption.bLRU, true, 0)==1, null, null, null);
 		findPreference("cache_p").setDefaultValue(DEFAULT_GLIDE_PATH);
 		findPreference("clear_cache").setOnPreferenceClickListener(this);
 	}
@@ -63,10 +69,10 @@ public class FileChooser extends SettingsFragmentBase implements Preference.OnPr
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 		switch (preference.getKey()){
 			case "use_ffmpeg_for_thumbs":
-				FilePickerOptions.setFFmpegThumbsGeneration((Boolean) newValue);
+				opt.getOpt(FilePickerOptions.FilePickerOption.bFFMRThumbnails, false, (Boolean)newValue==true?1:0);
 			break;
 			case "auto_delete_thumbs":
-				FilePickerOptions.setUseLruDiskCache((Boolean) newValue);
+				opt.getOpt(FilePickerOptions.FilePickerOption.bLRU, false, (Boolean)newValue==true?1:0);
 			break;
 		}
 		return true;
