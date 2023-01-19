@@ -201,6 +201,17 @@ public class FilePickerDialog extends AlertDialog implements
 	    filter = new ExtensionFilter(properties);
 	    internalList = new ArrayList<>();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setOnDismissListener(dialog -> {
+			MarkedItemList.clearSelectionList();
+			internalList.clear();
+			if(isDirty)
+				dumpSettings();
+			CMNF.AssetMap=null;
+			filter=null;
+			this.properties=null;
+			if(callbacks!=null)callbacks.onExitSlideShow();
+			if(callbacks!=null) callbacks.onDismiss();
+		});
     }
 
     public View getView() {
@@ -607,22 +618,6 @@ public class FilePickerDialog extends AlertDialog implements
     public void onDetachedFromWindow() {
         //CMN.Log("onDetachedFromWindow");
         super.onDetachedFromWindow();
-    }
-
-
-    @Override
-    public void dismiss() {
-        //here
-        MarkedItemList.clearSelectionList();
-        internalList.clear();
-        if(isDirty)
-            dumpSettings();
-        CMNF.AssetMap=null;
-        filter=null;
-        properties=null;
-        if(callbacks!=null)callbacks.onExitSlideShow();
-		if(callbacks!=null) callbacks.onDismiss();
-        super.dismiss();
     }
 
     private void dumpSettings() {

@@ -57,6 +57,7 @@ import androidx.appcompat.app.GlobalOptions;
 import androidx.appcompat.view.VU;
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.CMN;
 
 import com.jaredrummler.android.colorpicker.R;
@@ -133,6 +134,7 @@ public class ColorPickerDialog extends DialogFragment implements
 	private boolean isDirty;
 	private int oldOrientation;
 	public DialogInterface.OnShowListener mOnShowListener;
+	public FragmentActivity a;
 	
 	public static ColorPickerDialog newInstance(Context context, int initialColor) {
 		ColorPickerDialog dialog = new ColorPickerDialog();
@@ -191,12 +193,28 @@ public class ColorPickerDialog extends DialogFragment implements
 		if(oldColor!=colors_get(selectedPosition))
 			putColor(selectedPosition, colors_get(selectedPosition));
 		checkPalette();
-		super.dismiss();
+		dismiss();
 	}
-
+	
+	@Override
+	public void dismiss() {
+		try {
+			super.dismiss();
+		} catch (Exception e) {
+			CMN.debug(e);
+			if (mDialog!=null) {
+				try {
+					mDialog.dismiss();
+				} catch (Exception e1) {
+					CMN.debug(e1);
+				}
+			}
+		}
+	}
+	
 	private void checkPalette() {
 		if(isDirty){
-			Settings.getInstance(getActivity())
+			Settings.getInstance(getTheActivity())
 					.setAllPresets(presets.toString());
 			isDirty=false;
 		}
@@ -245,13 +263,16 @@ public class ColorPickerDialog extends DialogFragment implements
 		createColorShades(factory, colors_get(selectedPosition));
 	}
 	
+	public AlertDialog mDialog;
+	
+	
 	@NonNull @Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		if(initialColor==-1 && getArguments()!=null && getArguments().containsKey(ARG_Initial_Color))
 			initialColor  = getArguments().getInt(ARG_Initial_Color);
 		
 		if (rootView==null) {
-			createView(getActivity());
+			createView(getTheActivity());
 		} else
 			VU.removeIfParentBeOrNotBe(rootView, null, false);
 		if(mContentView!=null) {
@@ -263,19 +284,21 @@ public class ColorPickerDialog extends DialogFragment implements
 			}
 		}
 		
-		AlertDialog dialog = new AlertDialog.Builder(getContext(), Build.VERSION.SDK_INT >= 24 ? R.style.dialog_fullscreen : R.style.dialog_fullscreennonono)
-				.setView(rootView)
-				.setAutoBG(false)
-				.create();
+		if (mDialog==null) {
+			mDialog = new AlertDialog.Builder(getContext(), Build.VERSION.SDK_INT >= 24 ? R.style.dialog_fullscreen : R.style.dialog_fullscreennonono)
+					.setView(rootView)
+					.setAutoBG(false)
+					.create();
+		}
 		if (mOnShowListener!=null) {
-			dialog.setOnShowListener(mOnShowListener);
+			mDialog.setOnShowListener(mOnShowListener);
 		}
 		
-		Window win = dialog.getWindow();
+		Window win = mDialog.getWindow();
 		win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		win.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,  WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 		//win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE|WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-		return dialog;
+		return mDialog;
 	}
 	
 	private void ExpandGridView(long time) {
@@ -358,7 +381,7 @@ public class ColorPickerDialog extends DialogFragment implements
 	boolean isPickerAttached=false;
 	View pickerview;
 	View createPickerView() {
-		View contentView = LayoutInflater.from(getActivity()).inflate(R.layout.cpv_dialog_color_picker, views_holder, false);
+		View contentView = LayoutInflater.from(getTheActivity()).inflate(R.layout.cpv_dialog_color_picker, views_holder, false);
 		colorViewPicker = contentView.findViewById(R.id.cpv_color_picker_view);
 		oldColorPanel = contentView.findViewById(R.id.cpv_color_panel_old);
 		newColorPanel = contentView.findViewById(R.id.cpv_color_panel_new);
@@ -371,7 +394,7 @@ public class ColorPickerDialog extends DialogFragment implements
 		try {
 			final TypedValue value = new TypedValue();
 			TypedArray typedArray =
-					getActivity().obtainStyledAttributes(value.data, new int[]{android.R.attr.textColorPrimary});
+					getTheActivity().obtainStyledAttributes(value.data, new int[]{android.R.attr.textColorPrimary});
 			int arrowColor = typedArray.getColor(0, Color.BLACK);
 			typedArray.recycle();
 			arrowRight.setColorFilter(arrowColor);
@@ -406,7 +429,7 @@ public class ColorPickerDialog extends DialogFragment implements
 
 		hexEditText.setOnFocusChangeListener((v, hasFocus) -> {
 			if (hasFocus) {
-				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				InputMethodManager imm = (InputMethodManager) getTheActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.showSoftInput(hexEditText, InputMethodManager.SHOW_IMPLICIT);
 			}
 		});
@@ -465,7 +488,7 @@ public class ColorPickerDialog extends DialogFragment implements
 
 	void closeHexInput() {
 		if (hexEditText!=null && hexEditText.hasFocus()) {
-			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+			InputMethodManager imm = (InputMethodManager) getTheActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(hexEditText.getWindowToken(), 0);
 			hexEditText.clearFocus();
 		}
@@ -600,7 +623,7 @@ public class ColorPickerDialog extends DialogFragment implements
 		JSONArray target = null;
 		try {
 			if(presets==null)
-				presets = new JSONArray(Settings.getInstance(getActivity())
+				presets = new JSONArray(Settings.getInstance(getTheActivity())
 						.getAllPresets());
 			target = (JSONArray) presets.get(pos);
 		} catch (Exception e) {}
@@ -1008,7 +1031,7 @@ public class ColorPickerDialog extends DialogFragment implements
 		chooseDialog.position=position;
 		chooseDialog.colorPanelView=colorPanelView;
 		chooseDialog.colorpicker=this;
-		chooseDialog.show(getActivity().getSupportFragmentManager(), "PickSpaceDialog");
+		chooseDialog.show(getTheActivity().getSupportFragmentManager(), "PickSpaceDialog");
 	}
 
 	public static void showTopToast(Context context, String msg) {
@@ -1075,5 +1098,9 @@ public class ColorPickerDialog extends DialogFragment implements
 				}
 			}
 		}
+	}
+	
+	public FragmentActivity getTheActivity() {
+		return a != null ? a : super.getActivity();
 	}
 }
