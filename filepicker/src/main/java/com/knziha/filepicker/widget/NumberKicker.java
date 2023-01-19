@@ -2113,9 +2113,9 @@ public class NumberKicker extends LinearLayout {
     /**
      * The numbers accepted by the input text's {@link Filter}
      */
-    public static final char[] DIGIT_CHARACTERS = new char[] {
+	public static final char[] DIGIT_CHARACTERS = new char[] {
             // Latin digits are the common case
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', //  '.', todo ??
             // Arabic-Indic
             '\u0660', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668'
             , '\u0669',

@@ -20,7 +20,7 @@ public class ExtensionHelper {
                 ".rmvb",".rm",".rec",".ps",".ogx",".ogv",".ogm",".nuv",".nut",
                 ".nsv",".mxg",".mxf",".ismv",".gxf",".gvi",".dv",".drc",".divx"
                 ,".asf",".amv",".acc",".3gp2",".3g2"};
-        String[] photoExtensions = new String[]{".jpg", ".png", ".jpeg", ".bmp", ".webp", ".heic", ".heif"};
+        String[] photoExtensions = new String[]{".jpg", ".png", ".jpeg", ".bmp", ".webp", ".heic", ".heif" ,".tif"};
         String[] audioExtensions = new String[]{".mp3", ".wav", ".wma", ".ogg", ".m4a", ".opus", ".flac", ".aac"};
         String[] mpegExtensions = new String[]{".mp4",".mpv2",".mpg",".mpeg4",".mpeg2",".mpeg1",
                 ".mpeg",".mpe",".mp4v",".mp2v",".mp2",".m2v",".m2ts",".m2t",".m1v",".iso",".acc",".mdl"};

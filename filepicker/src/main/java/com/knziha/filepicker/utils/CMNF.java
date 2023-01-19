@@ -1,22 +1,25 @@
 package com.knziha.filepicker.utils;
 
-import android.annotation.SuppressLint;
-import android.view.View;
-import android.view.ViewGroup;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+
+
 //common
-public class CMNF {
+public class CMNF{
     public static HashMap<String, Integer> AssetMap;
 	public static int ShallowHeaderBlue;
     public static Object UniversalObject;
     public static HashMap<String, Object> UniversalHashMap;
 
+    public static int constants =0;
     public static Long FirstFlag;
 	public static String settings_class;
 

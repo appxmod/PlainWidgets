@@ -63,7 +63,7 @@ public class ExtensionFilter implements FileFilter {
                 String ext = name.substring(idx);
                 if(validExtensions.contains(ext))
                     return true;
-            }if(validExtensions.contains("*")){
+            }else if(validExtensions.contains("*")){
                 return true;
             }
 //            for (String ext : validExtensions) {

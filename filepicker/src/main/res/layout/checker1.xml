@@ -21,11 +21,11 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:padding="2dp"
-            app:dim1="6dp"
+			app:dim1="6dp"
             app:color_background="#FF3F51B5"
             app:color_border="#FFF"
             app:size="25dp"
-			app:src0="@drawable/clippin"
+            android:src="@drawable/clippin"
             />
     </LinearLayout>
 

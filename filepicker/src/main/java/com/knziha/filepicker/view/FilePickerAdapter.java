@@ -54,6 +54,7 @@ import com.knziha.filepicker.settings.FilePickerOptions;
 import com.knziha.filepicker.model.MarkedItemList;
 import com.knziha.filepicker.model.MyRequestListener;
 import com.knziha.filepicker.model.PatternHolder;
+import com.knziha.filepicker.model.VideoCover;
 import com.knziha.filepicker.utils.ExtensionHelper;
 import com.knziha.filepicker.widget.MaterialCheckbox;
 import com.knziha.filepicker.widget.OnCheckedChangeListener;
@@ -215,7 +216,7 @@ public class FilePickerAdapter extends ArrayAdapter<FileListItem>{
 			type_icon.setTag(R.id.home, false);
 			RequestManager IncanOpen = Glide.with(getContext().getApplicationContext());
 			(b2?IncanOpen.load(new AudioCover(item.location)):
-					IncanOpen.load(item.location))
+					IncanOpen.load(FilePickerOptions.getFFmpegThumbsGeneration()?new VideoCover(item.location):item.location))
 					.apply(options)
 					.format(DecodeFormat.PREFER_RGB_565)
 					.listener(myreqL2.setCrop(opt.getCropTumbnails()))

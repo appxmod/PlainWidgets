@@ -15,7 +15,6 @@ import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.module.AppGlideModule;
-import com.knziha.filepicker.utils.CMNF;
 
 import java.io.File;
 import java.io.InputStream;
@@ -32,7 +31,8 @@ public class GlideCacheModule extends AppGlideModule {
 	@Override
 	public void registerComponents(@NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
 		super.registerComponents(context, glide, registry);
-		registry.append(AudioCover.class, InputStream.class, new AudioCoverLoaderFactory());
+		registry.append( AudioCover.class, InputStream.class, new AudioCoverLoaderFactory());
+		registry.append( VideoCover.class, Bitmap.class, new VideoCoverLoaderFactory());
 		if(mOnGlideRegistry!=null) mOnGlideRegistry.OnGlideRegistry(registry);
 	}
 

@@ -1,21 +1,17 @@
 package com.knziha.filepicker.widget;
 
 import android.content.Context;
-import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatTextView;
 
 /**
- * Created by KnIfER on 2017/11/4.
+ * Created by ASDZXC on 2017/11/4.
  */
 
 public class TextViewmy extends AppCompatTextView {
 	public boolean sc;
-	public ClickableSpan span;
-	public OnLongClickListener longClick;
-	
-	public TextViewmy(Context c) {
+    public TextViewmy(Context c) {
         super(c);
         init();
     }

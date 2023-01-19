@@ -9,6 +9,7 @@ import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.knziha.filepicker.model.GlideCacheModule;
 import com.knziha.filepicker.utils.CMNF;
 
+// todo interface this class
 public class FilePickerOptions {
 	SharedPreferences defaultReader;
     public long FirstFlag;

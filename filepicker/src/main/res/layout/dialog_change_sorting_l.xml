@@ -36,7 +36,7 @@
                 style="@style/GridMode_l"
                 android:drawableTint="#666666"
                 android:textColor="#000"
-				android:onClick="onComfyClick"
+				
                 />
             <TextView
                 android:id="@+id/viewmode2"
@@ -45,7 +45,7 @@
                 style="@style/GridMode_l"
                 android:drawableTint="#666666"
                 android:textColor="#000"
-				android:onClick="onComfyClick"
+				
                 />
             <TextView
                 android:id="@+id/viewmode3"
@@ -54,7 +54,7 @@
                 style="@style/GridMode_l"
                 android:drawableTint="#666666"
                 android:textColor="#000"
-				android:onClick="onComfyClick"
+				
                 />
         </LinearLayout>
 
@@ -190,28 +190,28 @@
                 android:src="@drawable/ic_sort_asc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
             <ImageView
                 android:id="@+id/viewmode6"
                 android:src="@drawable/ic_sort_path_asc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
             <ImageView
                 android:id="@+id/viewmode8"
                 android:src="@drawable/ic_sort_size_asc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
             <ImageView
                 android:id="@+id/viewmode10"
                 android:src="@drawable/ic_sort_time_asc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
         </LinearLayout>
         <LinearLayout
@@ -224,28 +224,28 @@
                 android:src="@drawable/ic_sort_desc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
             <ImageView
                 android:id="@+id/viewmode7"
                 android:src="@drawable/ic_sort_path_desc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
             <ImageView
                 android:id="@+id/viewmode9"
                 android:src="@drawable/ic_sort_size_desc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
             <ImageView
                 android:id="@+id/viewmode11"
                 android:src="@drawable/ic_sort_time_desc"
                 style="@style/SortMode_l"
                 android:tint="#666666"
-				android:onClick="onComfyClick"
+				
                 />
         </LinearLayout>
 

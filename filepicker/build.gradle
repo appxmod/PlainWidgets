@@ -50,6 +50,10 @@ dependencies {
     //compileOnly "com.squareup:javapoet:1.11.1"
 
     //compileOnly project(path: ':annotation:compiler')
+
+    // exclude if dont want native dependency
+    api 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
+    //api project(path: ':ijkplayer')
 }
 
 apply from: "${rootProject.projectDir}/dependency.gradle"

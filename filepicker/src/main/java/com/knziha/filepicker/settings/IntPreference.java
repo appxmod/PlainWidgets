@@ -18,11 +18,15 @@ package com.knziha.filepicker.settings;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.DialogPreference;
@@ -30,15 +34,14 @@ import androidx.preference.DialogShowablePreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.EditTextPreferenceDialogFragmentCompat;
 
-import com.knziha.filepicker.R;
-
 /**
  * A {@link DialogPreference} that shows a {@link EditText} in the dialog.
  *
  * <p>This preference saves a Integer value.
  */
 public class IntPreference extends EditTextPreference implements DialogShowablePreference {
-	
+	private final String mSuffix;
+
 	public IntPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super(context, attrs, defStyleAttr, defStyleRes);
 		mSuffix = attrs.getAttributeValue(null, "suffix");
@@ -62,27 +65,18 @@ public class IntPreference extends EditTextPreference implements DialogShowableP
 	protected Object onGetDefaultValue(TypedArray a, int index) {
 		return a.getInt(index, 0);
 	}
-	
-	@Override
-	public void setDefaultValue(Object defaultValue) {
-		super.setDefaultValue(defaultValue);
-		//if(!isPersistent())
-		{
-			onSetInitialValue(defaultValue);
-		}
-	}
-	
+
 	@Override
 	protected void onSetInitialValue(Object defaultValue) {
-		mText = String.valueOf(getPersistedInt(defaultValue instanceof Integer? (Integer) defaultValue :0));
-		setSummary(mText);
+		mText = String.valueOf(getPersistedInt(defaultValue instanceof Integer? (int) defaultValue :0));
+		setSummary(mSuffix==null?mText:mText+mSuffix);
 	}
 
 	@Override
 	public void setText(String text) {
 		int val;
 		try {
-			val=TextUtils.getTrimmedLength(text)==0?0:Integer.parseInt(text);
+			val=Integer.valueOf(text);
 		} catch (NumberFormatException e) {
 			Toast.makeText(getContext(), "无效的数字", Toast.LENGTH_SHORT).show();
 			return;
@@ -91,7 +85,7 @@ public class IntPreference extends EditTextPreference implements DialogShowableP
 		final boolean wasBlocking = shouldDisableDependents();
 
 		mText = text;
-		setSummary(mText);
+		setSummary(mSuffix==null?mText:mText+mSuffix);
 
 		persistInt(val);
 

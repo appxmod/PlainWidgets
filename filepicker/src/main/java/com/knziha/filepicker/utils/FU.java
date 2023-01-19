@@ -20,8 +20,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
-import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.CMN;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.knziha.filepicker.R;
@@ -49,7 +48,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +58,6 @@ import java.util.Map;
 
 /**<p>
  * Created by Angad Singh on 11-07-2016.
- * Android 11 is so sad.
  * </p>
  */
 public class FU {
@@ -322,7 +319,7 @@ public class FU {
         try {
             if(bCreateFileButNotFolder) {
                 if(new_Folder.getParentFile()!=null)
-                    if(new_Folder.getParentFile().mkdirs())
+                    if(new_Folder.getParentFile().isDirectory() || new_Folder.getParentFile().mkdirs())
                         if(new_Folder.createNewFile()) return 0;
             }
             else if(new_Folder.mkdir()) return 0;
@@ -536,7 +533,7 @@ public class FU {
     }
 
     public static final boolean bGoodStorageAvailable=Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-    public static final boolean bKindButComplexSdcardAvailable=Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    public static final boolean bKindButComplexSdcardAvailable =Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
     public static CrudeStorageWork csw=new CrudeStorageWork();
 
@@ -670,7 +667,7 @@ public class FU {
         if(FU.exsists(context, dest)) return 233;
         boolean doit=false;
         String destPath=dest.getAbsolutePath(), filePath=file.getAbsolutePath();
-        if(!hasRootPermission()) {
+        if(true && !hasRootPermission()) {
             doit |= !destPath.startsWith("/sdcard/") && !destPath.startsWith("/storage/emulated/0/");
             doit |= !filePath.startsWith("/sdcard/") && !filePath.startsWith("/storage/emulated/0/");
         }else{//调用 shell 命令移动文件
@@ -812,9 +809,9 @@ public class FU {
                     //file.delete();
                 }
             }
-            return moved? 0 : -100;
+			return moved? 0 : -100;
         }catch (Exception e) {
-            e.printStackTrace();
+            CMN.Log(e);
         }
         
         dest.getParentFile().mkdirs();
@@ -872,6 +869,7 @@ public class FU {
 		}
 		return etNew;
 	}
+	
 	
 	public static class CrudeStorageWork{
         public Method getVolumeList;
@@ -1200,13 +1198,13 @@ public class FU {
 	}
 
 	public static boolean hasRootPermission() {
-    	if(!FilePickerOptions.getRoot())
-    		return false;
+		if(!FilePickerOptions.getRoot())
+			return false;
 	   Process process = null;
 	   DataOutputStream os = null;
 	   try {
 
-	    //Log.i("roottest", "try it");
+	    Log.i("roottest", "try it");
 	    String cmd = "touch /data/datafolder";
 	       process = Runtime.getRuntime().exec("su"); //切换到root帐号
 	       os = new DataOutputStream(process.getOutputStream());

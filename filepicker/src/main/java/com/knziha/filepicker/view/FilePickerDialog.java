@@ -61,6 +61,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.VU;
 import androidx.appcompat.widget.AlertDialogLayout;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.ListPopupWindow;
@@ -116,7 +117,7 @@ import mp4meta.utils.CMN;
 
 public class FilePickerDialog extends AlertDialog implements
              AdapterView.OnItemClickListener,
-		WindowChangeHandler,
+             WindowChangeHandler,
              View.OnClickListener,OnLongClickListener {
     private DialogProperties properties;
     private DialogSelectionListener callbacks;
@@ -171,7 +172,7 @@ public class FilePickerDialog extends AlertDialog implements
     private View oldSelectedSortMode;
     private Dialog d;
     private ListPopupWindow menupopup;
-	private View ComfyView;
+	private ViewGroup ComfyView;
 	private NumberKicker np1;
 	private AppCompatCheckBox ckList;
 	private OnDismissListener comfy_dissmiss_l;
@@ -227,7 +228,7 @@ public class FilePickerDialog extends AlertDialog implements
         }else {
 			//win.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,  WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 			//if(FU.bKindButComplexSdcardAvailable)
-        	    win.setBackgroundDrawableResource(properties.isDark? R.drawable.popup_shadow_d: R.drawable.popup_shadow_s);
+        	    win.setBackgroundDrawableResource(properties.isDark?R.drawable.popup_shadow_d:R.drawable.popup_shadow_s);
         	//else win.getDecorView().setBackgroundColor(properties.isDark?0xff666666:0xffcfcfcf);
             win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN|WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         	setContentView(R.layout.dialog_main);
@@ -304,7 +305,7 @@ public class FilePickerDialog extends AlertDialog implements
 			}
         }
         FirstFlagStamp = opt.FirstFlag;
-        if(favorList.size()==0) {// true||
+        if(favorList.size()==0) {  // true||
         	List<String> toAdd = Arrays.asList(getContext().getResources().getStringArray(R.array.internal_favor_dirs));
             favorList.addAll(0,toAdd);
             checker.addAll(toAdd);
@@ -375,7 +376,7 @@ public class FilePickerDialog extends AlertDialog implements
         inter_sel.setOnClickListener(this);
         root.findViewById(R.id.etSearch).setOnClickListener(this);
         //root.findViewById(R.id.etSearch).setVisibility(View.GONE);
-		if(properties.selection_mode== DialogConfigs.SINGLE_MODE){
+		if(properties.selection_mode==DialogConfigs.SINGLE_MODE){
 			toggle_all.setVisibility(View.GONE);
 			inter_sel.setVisibility(View.GONE);
 		}
@@ -411,11 +412,11 @@ public class FilePickerDialog extends AlertDialog implements
         folderCover.setOnLongClickListener(this);
         HeaderView = findViewById(R.id.header);
 
-        if(properties.selection_mode!= DialogConfigs.SINGLE_MODE)
+        if(properties.selection_mode!=DialogConfigs.SINGLE_MODE)
         	toggle_all.setVisibility(View.VISIBLE);
 
 		mFileListAdapter = new FilePickerAdapter(internalList, getContext(), properties, ph, opt);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
 			mFileListAdapter.colorAccent = colorAccent = getContext().getResources().getColor(R.color.colorAccent, getContext().getTheme());
 			mFileListAdapter.colorPrimary = getContext().getResources().getColor(R.color.colorPrimary, getContext().getTheme());
 		} else {
@@ -434,7 +435,7 @@ public class FilePickerDialog extends AlertDialog implements
             cancel.setText(negativeBtnNameStr);
         }
         select.setOnClickListener(this);
-        favorite.setOnClickListener(this);
+        favorite.setOnClickListener(this);  
         cancel.setOnClickListener(this);
 
         mFileListAdapter.setNotifyItemCheckedListener((item, isChecked) -> {
@@ -469,7 +470,7 @@ public class FilePickerDialog extends AlertDialog implements
         	title.setText(properties.title_id);
         else
         	title.setText(R.string.appname);
-
+        
         bmlv.setVisibility(View.GONE);
         dir_path.post(new Runnable() {
 			@Override
@@ -483,7 +484,7 @@ public class FilePickerDialog extends AlertDialog implements
 				layoutManager.scrollToPositionWithOffset(BKMKOff, 10);
 				//layoutManager.scrollToPosition(BKMKOff);
 				//bmlv.scrollToPosition(BKMKOff);
-
+				
 				//CMN.Log("scroll loaded "+BKMKOff);
 		}});
         bmlv.setScrollViewListener((scrollView, x, y, oldx, oldy) -> {
@@ -614,8 +615,7 @@ public class FilePickerDialog extends AlertDialog implements
         filter=null;
         properties=null;
         if(callbacks!=null)callbacks.onExitSlideShow();
-        if(callbacks!=null)
-        	callbacks.onDismiss();
+		if(callbacks!=null) callbacks.onDismiss();
         super.dismiss();
     }
 
@@ -701,7 +701,7 @@ public class FilePickerDialog extends AlertDialog implements
         if(currLocation==null) return;
         internalList.clear();//清空
         profaneSelction();
-
+        
         //if (!currLoc.getName().equals(properties.root.getName()) && currLoc.getParentFile()!=null) {//扫入
         if (currLocation.getParentFile()!=null) {//扫入
             FileListItem parent = new FileListItem(currLocation.getParentFile().getAbsolutePath());
@@ -820,18 +820,18 @@ public class FilePickerDialog extends AlertDialog implements
 		ret.truncator=truncator;
 		return ret;
 	}
-
+	
 	public class MemoClickableSpan extends ClickableSpan{
 		private int truncator;
 		private CharSequence token;
 		private int position;
 		public int offset;
 		private final int stage;
-
+		
 		MemoClickableSpan(int st){
 			stage = st;
 		}
-
+		
 		@Override
 		public void onClick(View widget) {
 			if(currentStage!=-1) {//save last postion!
@@ -885,14 +885,14 @@ public class FilePickerDialog extends AlertDialog implements
                         if (callbacks != null) {
                             callbacks.onSelectedFilePaths(new String[] {fItem.getLocation()}, currLocation);
 							callbacks=null;
-                        }
+						}
                         dismiss();
                     }else{//点击进入幻灯片
                         int cc = 0;
                         for (; cc < internalList.size(); cc++) {
                             if(!internalList.get(cc).isDirectory()) break;
                         }
-                        if(CMNF.UniversalHashMap==null) CMNF.UniversalHashMap=new HashMap<>(2);
+                        if(CMNF.UniversalHashMap==null)CMNF.UniversalHashMap=new HashMap<>(2);
                         ViewPagerLaunchTally="vp:"+System.currentTimeMillis();
                         CMNF.UniversalHashMap.put(ViewPagerLaunchTally,position-cc);
                         CMNF.UniversalObject = internalList.subList(cc, internalList.size());
@@ -1074,7 +1074,8 @@ public class FilePickerDialog extends AlertDialog implements
             mBMAdapter.notifyDataSetChanged();
             return true;
 
-        }else if(id  == R.id.toolbar_action1) {
+        }
+        else if(id  == R.id.toolbar_action1) {
             boolean val;
             if(bottombar2.getVisibility()!=View.VISIBLE) {
                 bottombar2.setVisibility(View.VISIBLE);
@@ -1086,13 +1087,15 @@ public class FilePickerDialog extends AlertDialog implements
             opt.setBottombarShown(val);
             return true;
         }
-        else if(id== R.id.browser_widget12){
+        else if(id==R.id.browser_widget12){
             int fvp = listView.getFirstVisiblePosition();
             if(fvp>=0) listView.smoothScrollToPositionFromTop(fvp, listView.getChildAt(0).getTop());
             for (int i = 0; i < internalList.size(); i++) {
                 if(!internalList.get(i).isDirectory()){
                     View cv = listView.getChildAt(0);
-                    listView.setSelectionFromTop(i, 0); //(int) (cv==null?0:cv.getHeight()*5.4f/6)
+                    //listView.setSelectionFromTop(i, (int) (cv==null?0:cv.getHeight()*5.4f/6));  // will crash
+					//CMNF.Log((int) (cv==null?0:cv.getHeight()*5.4f/6), "?? crash heigth is ??");
+                    listView.setSelectionFromTop(i, 0);
                     break;
                 }
             }
@@ -1103,7 +1106,7 @@ public class FilePickerDialog extends AlertDialog implements
 
 	CompoundButton.OnCheckedChangeListener checkclicker = (compoundButton, b) -> {
 		int id1 = compoundButton.getId();
-		if(id1 == R.id.enable_list){
+		if(id1 ==R.id.enable_list){
 			if(true)if(b==false){Toast.makeText(getContext(),"暂不支持网格显示",Toast.LENGTH_SHORT).show();ckList.setChecked(true);return;}
 			opt.setEnableList(b);
 			np1.setOnValueChangedListener(null);
@@ -1136,14 +1139,14 @@ public class FilePickerDialog extends AlertDialog implements
 				});
 			}
 		}
-		else if(id1== R.id.enable_thumbs){
+		else if(id1==R.id.enable_thumbs){
 			opt.setEnableTumbnails(b);
 		}
-		else if(id1== R.id.crop_thumbs){
+		else if(id1==R.id.crop_thumbs){
 			mFileListAdapter.myreqL2.setCrop(b);
 			opt.setCropTumbnails(b);
 		}
-		else if(id1== R.id.auto_height){
+		else if(id1==R.id.auto_height){
 			opt.setAutoThumbsHeight(b);
 		}
 	};
@@ -1197,7 +1200,7 @@ public class FilePickerDialog extends AlertDialog implements
 					}).show();
 			stylize_simple_message_dialog(d, getContext());
 		}
-		else if (id== R.id.browser_widget8){// TODO 移动::前进
+		else if (id==R.id.browser_widget8){// TODO 移动::前进
 			Dialog d=new androidx.appcompat.app.AlertDialog.Builder(getContext())
 					.setMessage(getContext().getResources().getString(R.string.fp_warn_move, MarkedItemList.getFileCount(),"dname.getText()"))
 					.setIcon(android.R.drawable.ic_dialog_alert)
@@ -1218,7 +1221,8 @@ public class FilePickerDialog extends AlertDialog implements
 									CMNF.Log("XXX-exsists",to.length()+":"+to.getAbsolutePath()+"from: "+val.getLocation());
 									continue;
 								}
-								int ret= FU.move3(getContext(), from, to);
+								long stst = System.currentTimeMillis();
+								int ret=FU.move3(getContext(), from, to);
 								//CMNF.Log("移动时间", System.currentTimeMillis()-stst);
 								if (ret==0||to.exists()&&!from.exists()) {
 									l.add(val.getLocation());
@@ -1251,8 +1255,7 @@ public class FilePickerDialog extends AlertDialog implements
 		else if (id == R.id.browser_widget10) {//删除::刷新
             if(mFileListAdapter.bIsSelecting) {
                 Dialog d = new androidx.appcompat.app.AlertDialog.Builder(getContext())
-                        .setTitle(getContext().getResources().getString(R.string.fp_warn_delete, MarkedItemList.getFileCount()))
-						.setMessage("不可撤销!")
+                        .setMessage(getContext().getResources().getString(R.string.fp_warn_delete, MarkedItemList.getFileCount()))
                         //.setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
 							Set<Map.Entry<String, FileListItem>> x = MarkedItemList.entrySet();
@@ -1286,7 +1289,7 @@ public class FilePickerDialog extends AlertDialog implements
                 ChangeToDir(currLocation);
             }
         }
-        else if(id== R.id.browser_widget11){//重命名::视图排序
+        else if(id==R.id.browser_widget11){//重命名::视图排序
 			if(mFileListAdapter.bIsSelecting) {
 				if(MarkedItemList.getFileCount()>0){
 					Set<Map.Entry<String, FileListItem>> x = MarkedItemList.entrySet();
@@ -1318,13 +1321,13 @@ public class FilePickerDialog extends AlertDialog implements
 								listView.setSelection(id13);
 							return;
 						}
-						int ret= FU.checkSdcardPermission(getContext(),new_Folder);
+						int ret=FU.checkSdcardPermission(getContext(),new_Folder);
 						if(ret!=0) {
 							if(ret==-1) AskPermissionSnack(etNew);
 							else Toast.makeText(getContext(), "未知错误1:"+ret, Toast.LENGTH_LONG).show();
 							return;
 						}
-						ret= FU.rename5(getContext(),file_to_rename ,new_Folder);
+						ret=FU.rename5(getContext(),file_to_rename ,new_Folder);
 						if(ret>=0) {
 							FileListItem fviewitem = MarkedItemList.removeSelectedItem(file_to_rename.getPath());
 							if(fviewitem!=null){
@@ -1363,7 +1366,7 @@ public class FilePickerDialog extends AlertDialog implements
 			}
 			else show_views_dialog();
         }
-        else if(id== R.id.browser_widget12){//菜单::菜单
+        else if(id==R.id.browser_widget12){//菜单::菜单
             ListPopupWindow popup1 = new ListPopupWindow(getContext());
             TextView textmp = new TextView(getContext());
             textmp.setTextSize(15.5f);
@@ -1392,7 +1395,7 @@ public class FilePickerDialog extends AlertDialog implements
             if (menu_clicker == null) {
                 menu_clicker= (parent, view, position, id12) -> {
                     int id_true = ((MenuAdapter) parent.getAdapter()).getId(position);
-                    if(id_true== R.drawable.fp_lock){
+                    if(id_true==R.drawable.fp_lock){
 						if(menupopup!=null)menupopup.dismiss();
                         properties.locked=!properties.locked;
                         if(properties.locked) {
@@ -1404,23 +1407,23 @@ public class FilePickerDialog extends AlertDialog implements
                         }
                         ChangeToDir(currLocation);
                     }
-					else if(id_true== R.drawable.ic_view_comfy_black_24dp){//视图
+					else if(id_true==R.drawable.ic_view_comfy_black_24dp){//视图
 						if(menupopup!=null)menupopup.dismiss();
 						show_views_dialog();
 					}
-					else if(id_true== R.drawable.tools_filepicker){//设置
+					else if(id_true==R.drawable.tools_filepicker){//设置
 						try {
 							if(menupopup!=null)menupopup.dismiss();
 							Intent intent = new Intent();
 							intent.putExtra("realm", 3);
-							intent.setClass(getContext(), Class.forName(CMNF.settings_class!=null? CMNF.settings_class:"com.knziha.settings.SettingsActivity"));
+							intent.setClass(getContext(), Class.forName(CMNF.settings_class!=null?CMNF.settings_class:"com.knziha.settings.SettingsActivity"));
 							getContext().startActivity(intent);
 						} catch (Exception e) { Toast.makeText(getContext(), "Cannot find settings activity : "+e, Toast.LENGTH_SHORT).show();}
 					}
-                    else if(id_true== R.drawable.ic_stop_black_24dp){//中断选择
+                    else if(id_true==R.drawable.ic_stop_black_24dp){//中断选择
                         exit_selection_due_to_zero();
                     }
-                    else if(id_true== R.drawable.ic_viewpager_carousel){//切换幻灯片模式
+                    else if(id_true==R.drawable.ic_viewpager_carousel){//切换幻灯片模式
                         if(menupopup!=null)menupopup.dismiss();
                         if(opt.setSlideShowMode(!opt.getSlideShowMode())){
                             EnterSlideShowMode(0);
@@ -1489,14 +1492,14 @@ public class FilePickerDialog extends AlertDialog implements
         	if(callbacks==null)
         	    return;
         	ArrayListTree<String> paths;
-            if(MarkedItemList.getFileCount()==0 && properties.selection_type!= DialogConfigs.FILE_SELECT){
+            if(MarkedItemList.getFileCount()==0 && properties.selection_type!=DialogConfigs.FILE_SELECT){
                 paths = new ArrayListTree<>();
                 paths.add(String.valueOf(dir_path.getText()));
             }else
                 paths = MarkedItemList.getSelectedPaths();
             //NullPointerException fixed in v1.0.2
-
-            if(properties.selection_type== DialogConfigs.FILE_SELECT) {
+            
+            if(properties.selection_type==DialogConfigs.FILE_SELECT) {
             	for(String f:paths.getList())
             		if(new File(f).isDirectory()) {
             			final ArrayListTree<String> fs = paths;
@@ -1512,16 +1515,15 @@ public class FilePickerDialog extends AlertDialog implements
 							@Override
 							public void onClick(View v) {
 								int id = v.getId();
-								if(id== R.id.btn1) {
+								if(id==R.id.btn1) {
 									d.cancel();
-								}else if(id== R.id.btn2) {
+								}else if(id==R.id.btn2) {
 									if (callbacks != null) {
-					                    callbacks.onSelectedFilePaths(fs.getList().toArray(new String[] {}), currLocation);
-										callbacks=null;
-									}
+					                    callbacks.onSelectedFilePaths(fs.getList().toArray(new String[] {}),currLocation );
+					                }
 									d.cancel();
 									FilePickerDialog.this.dismiss();
-								}else if(id== R.id.btn3) {
+								}else if(id==R.id.btn3) {
 									int depth=sk.getProgress();
 									ArrayList<String> scannerLes = new ArrayList<>();
 									for(String f:fs.getList())
@@ -1531,8 +1533,10 @@ public class FilePickerDialog extends AlertDialog implements
 									scannedDirs.clear();
 									for(String f:scannerLes)
 										scanFiles(f,fs,depth);
-									callbacks.onSelectedFilePaths(fs.getList().toArray(new String[] {}), currLocation);
-									callbacks=null;
+									if (callbacks != null) {
+										callbacks.onSelectedFilePaths(fs.getList().toArray(new String[] {}),currLocation);
+										callbacks=null;
+									}
 									d.cancel();
 									FilePickerDialog.this.dismiss();
 								}
@@ -1580,7 +1584,7 @@ public class FilePickerDialog extends AlertDialog implements
             		}
             }
             if (callbacks != null) {
-                callbacks.onSelectedFilePaths(paths.getList().toArray(new String[] {}), currLocation);
+                callbacks.onSelectedFilePaths(paths.getList().toArray(new String[] {}),currLocation);
 				callbacks=null;
             }
             dismiss();
@@ -1611,12 +1615,12 @@ public class FilePickerDialog extends AlertDialog implements
             	}
             	if(favorList.size()==0)  bIsDeletingFavor=false;
             }
-
+        
         }
         else if(id == R.id.cancel) {
         	cancel();
         }
-        else if(id== R.id.title){
+        else if(id==R.id.title){
             cancel();
         }
         else if(id == R.id.inter_sel) {//间隔选择
@@ -1647,16 +1651,19 @@ public class FilePickerDialog extends AlertDialog implements
                 else if(start>listView.getLastVisiblePosition()) listView.setSelection(start);
             }
         }
-        else if(id == R.id.new_folder) {//新建
-			EditText etNew = FU.buildStandardTopETDialog(getContext(), true, Gravity.TOP);
-			View btn_Done = ((View)etNew.getTag());
-			ImageView btn_SwicthFolderCreation = (ImageView) btn_Done.getTag();
-			if(opt.getCreatingFile())
+        else if(id == R.id.new_folder) {
+          	final ViewGroup dv = (ViewGroup) getLayoutInflater().inflate(R.layout.fp_edittext, null);
+          	final EditText etNew = dv.findViewById(R.id.edt_input);
+          	final View btn_Done = dv.findViewById(R.id.done);
+          	final ImageView btn_SwicthFolderCreation = dv.findViewById(R.id.toolbar_action1);
+        	if(opt.getCreatingFile())
 				etNew.setHint(R.string.fp_cf);
-			else
+        	else
 				btn_SwicthFolderCreation.setColorFilter(Color.GRAY);
-	
-			btn_SwicthFolderCreation.setOnClickListener(v17 -> {
+        	final Dialog dd = new GoodKeyboardDialog(getContext());
+        	dd.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        	dd.setContentView(dv);
+        	btn_SwicthFolderCreation.setOnClickListener(v17 -> {
 				if(opt.setCreatingFile(!opt.getCreatingFile())) {
 					btn_SwicthFolderCreation.setColorFilter(null);//本色毕露
 					etNew.setHint(R.string.fp_cf);
@@ -1665,41 +1672,64 @@ public class FilePickerDialog extends AlertDialog implements
 					etNew.setHint(R.string.fp_cff);
 				}
 			});
-			btn_Done = ((View)btn_Done.getTag());
-			btn_Done.setOnClickListener(v1 -> {
-				if(etNew.getText().length()==0) {
-					Toast.makeText(getContext(), "长度不能为零", Toast.LENGTH_SHORT).show();
-					return;
-				}
-				String currentDirName = dir_path.getText().toString();
-				File new_Folder = new File(currentDirName+"/"+etNew.getText());
-				if(new_Folder.exists()) {
-					//if(new_Folder.isDirectory() ^ opt.getCreatingFile()){
-					Toast.makeText(getContext(), "已存在", Toast.LENGTH_SHORT).show();
-					int id13 = internalList.indexOf(new FileListItem(new_Folder,false));
-					if(id13 !=-1)
-						listView.setSelection(id13);
-					return;
+        	btn_Done.setOnClickListener(v1 -> {
+                if(etNew.getText().length()==0) {
+                    Toast.makeText(getContext(), "长度不能为零", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String currentDirName = dir_path.getText().toString();
+                File new_Folder = new File(currentDirName+"/"+etNew.getText());
+                if(new_Folder.exists()) {
+                	//if(new_Folder.isDirectory() ^ opt.getCreatingFile()){
+						Toast.makeText(getContext(), "已存在", Toast.LENGTH_SHORT).show();
+						int id13 = internalList.indexOf(new FileListItem(new_Folder,false));
+						if(id13 !=-1)
+							listView.setSelection(id13);
+						return;
 					//}
-				}
-				int ret= FU.checkSdcardPermission(getContext(),new_Folder);
-				if(ret!=0) {
-					if(ret==-1) AskPermissionSnack(etNew);
-					else Toast.makeText(getContext(), "未知错误1:"+ret, Toast.LENGTH_LONG).show();
-					//return;
-				}
-				ret= FU.mkdir5(getContext(),new_Folder,opt.getCreatingFile());
-				if(ret>=0) {
-					internalList.add(new FileListItem(new_Folder, true));
-					mFileListAdapter.notifyDataSetChanged();
-					((Dialog)v1.getTag()).dismiss();
-				}else {
-					if(ret==-1)
-						Toast.makeText(getContext(), "请赋予sd卡读写权限。", Toast.LENGTH_LONG).show();
-					else
-						Toast.makeText(getContext(), "未知错误2:"+ret, Toast.LENGTH_LONG).show();
-				}
-			});
+                }
+                int ret=FU.checkSdcardPermission(getContext(),new_Folder);
+                if(ret!=0) {
+                    if(ret==-1) AskPermissionSnack(etNew);
+                else Toast.makeText(getContext(), "未知错误1:"+ret, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                ret=FU.mkdir5(getContext(),new_Folder,opt.getCreatingFile());
+                if(ret>=0) {
+                    internalList.add(new FileListItem(new_Folder, true));
+                    mFileListAdapter.notifyDataSetChanged();
+                    dd.dismiss();
+                }else {
+                    if(ret==-1)
+                        Toast.makeText(getContext(), "请赋予sd卡读写权限。", Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(getContext(), "未知错误2:"+ret, Toast.LENGTH_LONG).show();
+                }
+            });
+        	etNew.setOnEditorActionListener(new OnEditorActionListener(){
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					if(actionId == EditorInfo.IME_ACTION_DONE ||actionId==EditorInfo.IME_ACTION_UNSPECIFIED) {
+						btn_Done.performClick();
+						return true;
+					}
+					return false;
+				}});
+
+			//imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        	//imm.showSoftInput(etNew, InputMethodManager.SHOW_FORCED);
+        	dd.getWindow().setGravity(Gravity.TOP);
+        	dd.getWindow().getAttributes().verticalMargin=0.01f;
+        	dd.getWindow().setAttributes(dd.getWindow().getAttributes());
+        	dd.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        	//dd.getWindow().setBackgroundDrawableResource(R.drawable.popup_shadow_s);
+        	dd.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dd.show();
+            if(true){
+                dd.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                etNew.requestFocus();
+            }
         }
         else if(id == R.id.etSearch) {
           	final ViewGroup dv = (ViewGroup) getLayoutInflater().inflate(R.layout.fp_editsearch, null);
@@ -1717,7 +1747,7 @@ public class FilePickerDialog extends AlertDialog implements
 				if(!opt.getRegexSearch() && phrase.startsWith("^")) phrase=phrase.substring(1);
 				etNew.setText(phrase);
 			}
-
+        	
         	final Dialog dd = new GoodKeyboardDialog(getContext());
         	dd.requestWindowFeature(Window.FEATURE_NO_TITLE);
         	dd.setContentView(dv);
@@ -1748,7 +1778,7 @@ public class FilePickerDialog extends AlertDialog implements
 				}
 				if(bNeedInvaildate)mFileListAdapter.notifyDataSetChanged();
 				int fvp = listView.getFirstVisiblePosition();
-				boolean backward = v12.getId()== R.id.toshn;
+				boolean backward = v12.getId()==R.id.toshn;
 				int i = fvp+1,max=mFileListAdapter.getCount(),delta=1;
 				if(backward){i=fvp-1;delta=-1;}
 				for (; backward?i>0:i<max ; i+=delta) {
@@ -1760,7 +1790,7 @@ public class FilePickerDialog extends AlertDialog implements
 				}
 			};
             OnLongClickListener shangxiaLongClicker = v13 -> {
-				boolean backward = v13.getId()== R.id.toshn;
+				boolean backward = v13.getId()==R.id.toshn;
 				listView.setSelection(backward?0:mFileListAdapter.getCount()-1);
 				return true;
 			};
@@ -1794,7 +1824,7 @@ public class FilePickerDialog extends AlertDialog implements
     }
 
 	private void snack_lock() {
-		snackbar = Snackbar.make(listView, R.string.fp_warn_lock, Snackbar.LENGTH_LONG)
+		snackbar = Snackbar.make(listView, R.string.fp_warn_lock,Snackbar.LENGTH_LONG)
 				.setAction("Re-lock", new
 						View.OnClickListener(){
 							@Override
@@ -1817,7 +1847,39 @@ public class FilePickerDialog extends AlertDialog implements
 		long mFlagLocalStamp = opt.getFlag();
 		if(d!=null) return;
 		if(ComfyView==null){
-			ComfyView = getLayoutInflater().inflate(R.layout.dialog_change_sorting_l, null);
+			ComfyView = (ViewGroup) getLayoutInflater().inflate(R.layout.dialog_change_sorting_l, null);
+			VU.setOnClickListenersOneDepth(ComfyView, new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					int mode = -1;
+					int id = view.getId();
+					if (id == R.id.viewmode1) {
+						SelectGridMode(view);
+					} else if (id == R.id.viewmode2) {
+						SelectGridMode(view);
+					} else if (id == R.id.viewmode3) {
+						SelectGridMode(view);
+					} else if (id == R.id.viewmode4) {
+						mode = 0;
+					} else if (id == R.id.viewmode5) {
+						mode = 1;
+					} else if (id == R.id.viewmode6) {
+						mode = 2;
+					} else if (id == R.id.viewmode7) {
+						mode = 3;
+					} else if (id == R.id.viewmode8) {
+						mode = 4;
+					} else if (id == R.id.viewmode9) {
+						mode = 5;
+					} else if (id == R.id.viewmode10) {
+						mode = 6;
+					} else if (id == R.id.viewmode11) {
+						mode = 7;
+					}
+					if (mode != -1)
+						SortModeCommon(view, mode);
+				}
+			}, 999, null);
 			ColorStateList colorStateList = new ColorStateList(new int[][]{new int[]{-android.R.attr.state_checked},new int[]{android.R.attr.state_checked}},
 					new int[]{Color.BLACK,Color.BLACK}
 			);
@@ -1867,7 +1929,7 @@ public class FilePickerDialog extends AlertDialog implements
 		window.getDecorView().setBackgroundResource(R.drawable.popup_shadow_l);
 		window.getDecorView().getBackground().setAlpha(238);
 		window.setDimAmount(0.3f);
-		ViewGroup tv =  window.findViewById(R.id.parentPanel);
+		AlertDialogLayout tv =  window.findViewById(R.id.parentPanel);
 		tv.addView(getLayoutInflater().inflate(R.layout.circle_checker_item_menu_titilebar2,null),0);
 		tv.addView(getLayoutInflater().inflate(R.layout.checker1,null));
 		final CircleCheckBox ck = tv.getChildAt(tv.getChildCount()-1).findViewById(R.id.check1);
@@ -1885,7 +1947,7 @@ public class FilePickerDialog extends AlertDialog implements
 		titlebar.setText(R.string.view);
 		titlebar.setTextColor(Color.BLACK);
 		dTmp.setOnDismissListener(comfy_dissmiss_l==null?(comfy_dissmiss_l=dialogInterface -> {
-			if(opt.getSortMode()!= FileListItem.comparation_method){
+			if(opt.getSortMode()!=FileListItem.comparation_method){
 				FileListItem.comparation_method=opt.getSortMode();
 				ChangeToDir(currLocation);
 			}else if(opt.getCropTumbnails(mFlagLocalStamp)!=opt.getCropTumbnails()
@@ -1917,7 +1979,7 @@ public class FilePickerDialog extends AlertDialog implements
 
 	private void AskPermissionSnack(View snv) {
         if(snv==null) snv=listView;
-        snackbar = Snackbar.make(snv, "请赋予sd卡读写权限。", Snackbar.LENGTH_SHORT);
+        snackbar = Snackbar.make(snv, "请赋予sd卡读写权限。",Snackbar.LENGTH_SHORT);
         snackbar.setAction("赋予", view -> {
             getContext().startActivity(new Intent(Intent.ACTION_MAIN).setClass(getContext(), StorageActivity.class));
         });
@@ -1959,7 +2021,7 @@ public class FilePickerDialog extends AlertDialog implements
     }
 
     protected void invalidateSelectBtnColor(int size) {
-		boolean hasValidSelection = properties.selection_type== DialogConfigs.DIR_SELECT  || size != 0;
+		boolean hasValidSelection = properties.selection_type==DialogConfigs.DIR_SELECT  || size != 0;
 		select.setEnabled(hasValidSelection);
 		select.setTextColor(hasValidSelection?colorAccent:Color.argb(128, Color.red(colorAccent), Color.green(colorAccent), Color.blue(colorAccent)));
     }
@@ -1980,7 +2042,7 @@ public class FilePickerDialog extends AlertDialog implements
 	}
 
 	private void sn(int id) {
-		snackbar = Snackbar.make(listView, id, Snackbar.LENGTH_SHORT);
+		snackbar = Snackbar.make(listView, id,Snackbar.LENGTH_SHORT);
 		snackbar.show();
         //CMNF.recurseLogCascade(snackbar.getView());
         //CMNF.recurseLogCascade(listView);
@@ -1991,7 +2053,7 @@ public class FilePickerDialog extends AlertDialog implements
 	}
 
 	private void sn(Object text) {
-		snackbar = Snackbar.make(listView, String.valueOf(text), Snackbar.LENGTH_SHORT);
+		snackbar = Snackbar.make(listView, String.valueOf(text),Snackbar.LENGTH_SHORT);
 		snackbar.show();
 		//fuckSnackbarfuck CoordinatorLayout CAO NI MEI MEI
         //Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout)snackbar.getView();
@@ -2001,7 +2063,7 @@ public class FilePickerDialog extends AlertDialog implements
 	
 	private void lockit() {
 		//click_dir_at(null);
-        if(!(properties.extensions==null && properties.selection_mode == DialogConfigs.MULTI_MODE && properties.selection_type== DialogConfigs.FILE_AND_DIR_SELECT))
+        if(!(properties.extensions==null && properties.selection_mode == DialogConfigs.MULTI_MODE && properties.selection_type==DialogConfigs.FILE_AND_DIR_SELECT))
         {//TODO instead of zero-out pick valid ones.
         	MarkedItemList.clearSelectionList();
         	invalidateSelectBtn(0);
