@@ -289,6 +289,8 @@ public class ColorPickerDialog extends DialogFragment implements
 					.setView(rootView)
 					.setAutoBG(false)
 					.create();
+		} else {
+			mDialog.setContentView(rootView);
 		}
 		if (mOnShowListener!=null) {
 			mDialog.setOnShowListener(mOnShowListener);
