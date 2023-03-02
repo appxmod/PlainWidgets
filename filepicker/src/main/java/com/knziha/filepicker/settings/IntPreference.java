@@ -65,7 +65,14 @@ public class IntPreference extends EditTextPreference implements DialogShowableP
 	protected Object onGetDefaultValue(TypedArray a, int index) {
 		return a.getInt(index, 0);
 	}
-
+	
+	
+	@Override
+	public void setDefaultValue(Object defaultValue) {
+		super.setDefaultValue(defaultValue);
+		onSetInitialValue(defaultValue);
+	}
+	
 	@Override
 	protected void onSetInitialValue(Object defaultValue) {
 		mText = String.valueOf(getPersistedInt(defaultValue instanceof Integer? (int) defaultValue :0));
